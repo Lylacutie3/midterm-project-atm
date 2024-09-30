@@ -9,13 +9,13 @@ struct Info{ //Info dont think about registration info
     int balance;
     string pin;    
     Info *next;
-};
+};//used in transaction
 
 class Transaction{
 private:
-    Info* head; //for start of linklist
+    Info* head; //indicate alink list
 public:
-    Transaction(): head(NULL){}
+    Transaction(): head(NULL){} //initialized head as NULL
     void add(Info s){ // add just to sample if its working
         Info* newAcc = new Info;
         newAcc->accountNo = s.accountNo;
@@ -48,13 +48,13 @@ public:
     void home(Info s){ //check if the password correct
         if(search(s) == 1){
              menu(s);
-        }else if(search(s) == 2){
+        }else if(search(s) == 2){//if incorrect it will go back
              cout << "Account Pin is incorrect" << endl;
-        }else{
+        }else{ 
             cout << "Account Number is not found!" << endl;
         }       
     }
-    int choice(){
+    int choice(){ //menu choice
         int pick;
         cout << "1. Deposit" << endl;
         cout << "2. Withdraw" << endl;
@@ -65,7 +65,7 @@ public:
         return pick;
     }
     void menu(Info s){
-        int money;
+        int money;//here is the basics
         Info t;
         switch(choice()){
             case 1: cout << "Input how much deposit: "; cin >> money; deposit(s,money); break;
@@ -85,10 +85,10 @@ public:
         }
         cout << "Account Balance: " << p->balance << endl;
         cout << "Do you want another transaction?\n1.) YES\n2.) NO\n"; 
-        cin >> pick;
+        cin >> pick; // ask for transaction
         switch (pick) {
-            case 1: menu(s);break;
-            case 2: break;
+            case 1: menu(s);break; //comeback to menu if want another
+            case 2: break; //home again
             default: balanceInquiry(s);
         }
     }
@@ -110,7 +110,7 @@ public:
         }
         p->balance += deposit;
         cout << "Deposit Successful!" << endl;
-        balanceInquiry(s);
+        balanceInquiry(s);//shows the balance
         }
 
     void transfer(Info transferAc, Info s, int transfer){
@@ -128,7 +128,7 @@ public:
             }
             p->balance -= transfer;
             cout << "Transfer Successful!" << endl;
-            balanceInquiry(s);
+            balanceInquiry(s); //show the balnce after transfer
         }
 
     }
@@ -159,7 +159,7 @@ public:
 int menu(){
     int choice;
     cout << "1. Enroll Account" << endl;
-    cout << "2. Open Account" << endl;
+    cout << "2. Use Account" << endl;
     cin >> choice;
     return choice;
 }
