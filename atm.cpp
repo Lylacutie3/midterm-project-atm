@@ -13,6 +13,7 @@ struct Info{ //Info dont think about registration info
     int balance;
     string pin;    
     Info *next;
+    Info(): accountNo(),balance(),pin(),next(NULL){}
 };//used in transaction
 
 
@@ -23,10 +24,7 @@ private:
 public:
     Transaction(): head(NULL){} //initialized head as NULL
     void add(Info s){ // add just to sample if its working
-        Info* newAcc = new Info;
-        newAcc->accountNo = s.accountNo;
-        newAcc->balance = s.balance;
-        newAcc->pin = s.pin;
+        Info* newAcc = new Info(s);
         Info* p = head;
         Info* q = head;
         while(p != NULL){
@@ -67,7 +65,6 @@ public:
         cout << "3. Check Balance" << endl;
         cout << "4. Bank Transfer" << endl;
         cout << "5. Change Pin" << endl;
-        cout << "6. Exit" << endl;
         cin >> pick;
         return pick;
     }
@@ -81,7 +78,6 @@ public:
             case 4: cout << "Input transfer Account: "; cin >> t.accountNo; 
                     cout << "Input how much transfer: "; cin >> money; transfer(t,s,money);break;
             case 5: cout << "CHANGE PIN:\n"; changePin(s);
-            case 6: cout << "Exiting...\n";break;
             default: cout << "Invalid Input";break;
         }
     }
@@ -163,35 +159,8 @@ public:
         changePin(s);
     }}
 
-    void encrypt(){
-    Info* p;
-    string encryptedPin;
-    while (p != nullptr) {
-        encryptedPin.clear();
-        for (char& c : p->pin) {
-            c += key;
-            encryptedPin += c;
-    }
-    p->pin = encryptedPin;
-    p = p->next;
-}
-    }
-
-    void decrypt(){
-    Info* p;
-    string decryptedPin;
-    while (p != nullptr) {
-        decryptedPin.clear();
-        for (char c : p->pin) {
-            decryptedPin += c - key;
-        }
-        p->pin = decryptedPin;
-        p = p->next;
-    }
-	}
 
     void save(){
-        encrypt();
         fstream myFile;
         myFile.open("account.txt", ios::out);
         if(!myFile){
@@ -226,8 +195,43 @@ public:
             }
         }
         myFile.close();
-        decrypt();
     }
+    void encrypt() {
+        if (head == NULL) {
+            return;
+        }
+        Info* p = head;  // Initialize p to point to the head of the list
+        while (p != NULL) {
+            string encryptedPin;
+            int size = p->pin.size();
+            for (int i = 0; i < size; i++) {
+                c = p->pin[i];
+                c += key;
+                encryptedPin += c;
+        }
+            p->pin = encryptedPin;
+            p = p->next;
+    }
+}
+
+    void decrypt(){
+    if (head==NULL) {
+        return;
+    }else{
+        Info* p;
+        while (p != NULL) {
+            string decryptedPin;
+            int size = p->pin.size();
+            for (int i = 0; i < size; i++) {
+                c = p->pin[i];
+                c -= key;
+                decryptedPin += c;
+    }
+        p->pin = decryptedPin;
+        p = p->next;
+}
+    }
+	}
 
 };
 
@@ -235,6 +239,7 @@ int menu(){
     int choice;
     cout << "1. Enroll Account" << endl;
     cout << "2. Use Account" << endl;
+    cout << "3. Exit" << endl;
     cin >> choice;
     return choice;
 }
@@ -243,14 +248,16 @@ int main(){
     Transaction t;  
     Info s;
     t.retrieve();
+    t.decrypt();
     while (true) {
         switch (menu()) {
             case 1: cout << "Welcome to the Bank System!" << endl;
                     cout << "Input Account Number: ";cin >> s.accountNo;
-                    cout << "Input pin: ";cin >> s.pin; s.balance = 5000;t.add(s);t.save();break;
+                    cout << "Input pin: ";cin >> s.pin; s.balance = 5000;t.add(s);break;
             case 2: cout << "Welcome to the Bank System!" << endl;
                     cout << "Input Account Number: ";cin >> s.accountNo;
-                    cout << "Input pin: ";cin >> s.pin; t.home(s);t.save();break;
+                    cout << "Input pin: ";cin >> s.pin; t.home(s);break;
+            case 3:t.encrypt();t.save(); exit(0);
             default:cout << "Invalid Choice"; break;
         }
     
