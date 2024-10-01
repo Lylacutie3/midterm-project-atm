@@ -1,6 +1,10 @@
+#include <algorithm>
+#include <cstddef>
 #include <ctime>
 #include <iostream>
 #include <string>
+#include <fstream>
+#define key 11212
 
 using namespace std;
 
@@ -11,9 +15,11 @@ struct Info{ //Info dont think about registration info
     Info *next;
 };//used in transaction
 
+
 class Transaction{
 private:
     Info* head; //indicate alink list
+    char c;
 public:
     Transaction(): head(NULL){} //initialized head as NULL
     void add(Info s){ // add just to sample if its working
@@ -60,7 +66,8 @@ public:
         cout << "2. Withdraw" << endl;
         cout << "3. Check Balance" << endl;
         cout << "4. Bank Transfer" << endl;
-        cout << "5. Exit" << endl;
+        cout << "5. Change Pin" << endl;
+        cout << "6. Exit" << endl;
         cin >> pick;
         return pick;
     }
@@ -73,6 +80,8 @@ public:
             case 3: balanceInquiry(s); break;
             case 4: cout << "Input transfer Account: "; cin >> t.accountNo; 
                     cout << "Input how much transfer: "; cin >> money; transfer(t,s,money);break;
+            case 5: cout << "CHANGE PIN:\n"; changePin(s);
+            case 6: cout << "Exiting...\n";break;
             default: cout << "Invalid Input";break;
         }
     }
@@ -154,6 +163,72 @@ public:
         changePin(s);
     }}
 
+    void encrypt(){
+    Info* p;
+    string encryptedPin;
+    while (p != nullptr) {
+        encryptedPin.clear();
+        for (char& c : p->pin) {
+            c += key;
+            encryptedPin += c;
+    }
+    p->pin = encryptedPin;
+    p = p->next;
+}
+    }
+
+    void decrypt(){
+    Info* p;
+    string decryptedPin;
+    while (p != nullptr) {
+        decryptedPin.clear();
+        for (char c : p->pin) {
+            decryptedPin += c - key;
+        }
+        p->pin = decryptedPin;
+        p = p->next;
+    }
+	}
+
+    void save(){
+        encrypt();
+        fstream myFile;
+        myFile.open("account.txt", ios::out);
+        if(!myFile){
+            cout<<"Unable to Open th File";
+            cin.ignore();
+            cin.get();
+        }else{
+            Info* p = head;
+            while(p != NULL){
+                myFile << p->accountNo <<endl;
+                myFile << p->balance <<endl;
+                myFile << p->pin <<endl;
+                p = p->next;
+        }
+        myFile.close();
+    }}
+    void retrieve(){
+        fstream myFile;
+        myFile.open("account.txt", ios::in);
+        if(!myFile){
+            cout<<"Unable to Open the File";
+            cin.ignore();
+            cin.get();
+        }else{
+            Info s;
+            while (myFile >> s.accountNo){
+                myFile >> s.balance;
+                myFile >> s.pin;
+
+                myFile.ignore();
+                add(s);
+            }
+        }
+        myFile.close();
+        decrypt();
+    }
+
 };
 
 int menu(){
@@ -165,16 +240,17 @@ int menu(){
 }
 
 int main(){
-    Transaction t;
+    Transaction t;  
     Info s;
+    t.retrieve();
     while (true) {
         switch (menu()) {
             case 1: cout << "Welcome to the Bank System!" << endl;
                     cout << "Input Account Number: ";cin >> s.accountNo;
-                    cout << "Input pin: ";cin >> s.pin; s.balance = 5000;t.add(s); break;
+                    cout << "Input pin: ";cin >> s.pin; s.balance = 5000;t.add(s);t.save();break;
             case 2: cout << "Welcome to the Bank System!" << endl;
                     cout << "Input Account Number: ";cin >> s.accountNo;
-                    cout << "Input pin: ";cin >> s.pin; t.home(s);break;
+                    cout << "Input pin: ";cin >> s.pin; t.home(s);t.save();break;
             default:cout << "Invalid Choice"; break;
         }
     
