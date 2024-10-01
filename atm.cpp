@@ -218,7 +218,7 @@ public:
     if (head==NULL) {
         return;
     }else{
-        Info* p;
+        Info* p = head;
         while (p != NULL) {
             string decryptedPin;
             int size = p->pin.size();
@@ -232,7 +232,6 @@ public:
 }
     }
 	}
-
 };
 
 int menu(){
