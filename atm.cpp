@@ -9,7 +9,7 @@
 using namespace std;
 
 struct Info{ //Info dont think about registration info
-    int accountNo;
+    string accountNo;
     int balance;
     string pin;    
     Info *next;
@@ -23,6 +23,26 @@ private:
     char c;
 public:
     Transaction(): head(NULL){} //initialized head as NULL
+    
+    string initializedAccNo(){
+    srand(time(0));//randomized number base on time
+    string acc;
+    Info* p = head; 
+
+    for(int i = 0; i < 5; i++){
+        char a = rand() % 9 + '0';//make it char
+        acc += a; //add to the string
+    }
+
+        while(p!= NULL && p->accountNo != acc){
+            p = p->next; //look for whether exist or not
+        }
+        if(p!= NULL && p->accountNo == acc){
+            initializedAccNo(); // do it again if its exist
+        }
+        return acc; //return if its unique
+    }
+
     void add(Info s){ // add just to sample if its working
         Info* newAcc = new Info(s);
         Info* p = head;
@@ -196,7 +216,7 @@ public:
         }
         myFile.close();
     }
-    void encrypt() {
+    void encrypt() { //encrypt pass before saving
         if (head == NULL) {
             return;
         }
@@ -209,12 +229,12 @@ public:
                 c += key;
                 encryptedPin += c;
         }
-            p->pin = encryptedPin;
+            p->pin = encryptedPin;      
             p = p->next;
     }
 }
 
-    void decrypt(){
+    void decrypt(){ //decreypt all pin after retrieve
     if (head==NULL) {
         return;
     }else{
@@ -236,7 +256,7 @@ public:
 
 int menu(){
     int choice;
-    cout << "1. Enroll Account" << endl;
+    cout << "\n1. Enroll Account" << endl;
     cout << "2. Use Account" << endl;
     cout << "3. Exit" << endl;
     cin >> choice;
@@ -250,9 +270,9 @@ int main(){
     t.decrypt();
     while (true) {
         switch (menu()) {
-            case 1: cout << "Welcome to the Bank System!" << endl;
-                    cout << "Input Account Number: ";cin >> s.accountNo;
-                    cout << "Input pin: ";cin >> s.pin; s.balance = 5000;t.add(s);break;
+            case 1: cout << "Welcome to the Bank System!" << endl;cout << "Your Account Number: ";
+                    s.accountNo = t.initializedAccNo();cout << s.accountNo; 
+                    cout << "\nInput pin: ";cin >> s.pin; s.balance = 5000;t.add(s);break;
             case 2: cout << "Welcome to the Bank System!" << endl;
                     cout << "Input Account Number: ";cin >> s.accountNo;
                     cout << "Input pin: ";cin >> s.pin; t.home(s);break;
