@@ -14,7 +14,7 @@ using namespace std;
 struct Info{ //Info dont think about registration info
     string accountNo;
     int balance;
-    string pin;    
+    string pin;
     Info *next;
     Info(): accountNo(),balance(),pin(),next(NULL){}
 };//used in transaction
@@ -79,7 +79,7 @@ public:
         }
     }
 
-    
+
     int widdepValidation(){ //return value of real number
         int number=0;
         while(true){
@@ -101,7 +101,7 @@ public:
             else if(ch >='0' && ch <= '9'){
                 if(ch == '0'){
                     if(number == 0)
-                        cout << "\b \b \b";
+                        continue;
                 }
                 number = number * 10 + (ch - '0');
                 cout << ch; // Display the digit
@@ -115,7 +115,7 @@ public:
     string initializedAccNo(){
     srand(time(0));//randomized number base on time
     string acc;
-    Info* p = head; 
+    Info* p = head;
 
     for(int i = 0; i < 5; i++){
         char a = rand() % 9 + '0';//make it char
@@ -138,7 +138,7 @@ public:
             cout << "2. Use Account" << endl;
             cout << "3. Exit" << endl;
             cout << "Press your choice: ";
-            pick = _getch();   
+            pick = _getch();
             return pick;
     }
 
@@ -159,7 +159,7 @@ public:
         Info* p = head;
         while (p != NULL && p->accountNo != s.accountNo) {
             p = p->next;
-        }    
+        }
         if (p == NULL) {
             return 0;
         }else if(p->pin == s.pin){
@@ -169,11 +169,17 @@ public:
         }
     }
 
-    void home(Info s){ //check if the password correct
+    void home(Info s, int x){ //check if the password correct
+        
         if(search(s) == 1){
-             transac(s);
+            transac(s);
         }else if(search(s) == 2){//if incorrect it will go back
-             cout << "Account Pin is incorrect" << endl;
+            cout << "Account Pin is incorrect" << endl;
+            if(x < 3)
+                home(s, x + 1);
+            else
+                cout << "enought tries, wait for card...";
+             
         }else{
             cout << "Account Number is not found!" << endl;
         }
@@ -196,10 +202,10 @@ public:
         system("cls");
         switch(choice()){
             case '1':system("cls"); cout << "Input how much deposit: "; money = widdepValidation();
-                    deposit(s, money); cout << "Deposit Successful!" << 
+                    deposit(s, money); cout << "Deposit Successful!" <<
                     endl; balanceInquiry(s); anotherTransaction(s); break;
             case '2':system("cls"); cout << "Input how much withdraw: "; money = widdepValidation();
-                    withdraw(s, money);cout << "Withrawal Successful!\n" 
+                    withdraw(s, money);cout << "Withdrawal Successful!\n"
                     << "Wait for the card!!!" << endl; break;
             case '3':system("cls"); balanceInquiry(s); anotherTransaction(s); break;
             case '4':system("cls"); cout << "Input transfer Account: "; cin >> t.accountNo;
@@ -238,10 +244,14 @@ public:
         }
 
         if(withdraw%100 == 0){
+            if(withdraw > 20000){
+                cout << "Withdrawal amount is too high. Please try again" << endl;
+                return;
+            }
             if(p->balance>=withdraw){ //check if balance is enough
                 p->balance -= withdraw;
             }else{
-                cout << "Insufficient Balance!!!" << endl;  
+                cout << "Insufficient Balance!!!" << endl;
                 anotherTransaction(s);
             }
         }else{
@@ -249,7 +259,7 @@ public:
             anotherTransaction(s);
         }
     }
-    
+
     void deposit(Info s, int deposit){
         Info* p = head;
 
@@ -271,10 +281,11 @@ public:
             t = t->next;
         }
         if(transferAc.accountNo == s.accountNo){
-            cout << "You can transfer on your Account." << endl;
+            cout << "You can not transfer on your Account." << endl;
             anotherTransaction(s);
         }else if (t == NULL){
             cout << "\nThe Account is not Enrolled" << endl;
+            anotherTransaction(s);
         }else{
             cout << "Transfer amout: ";
             int amount = widdepValidation();
@@ -327,10 +338,12 @@ public:
             cout << "\nPassword is incorrect" << endl;
             changePin(s);
         }
+        anotherTransaction(s);
     }
 
 
     void save(){
+        encrypt();
         fstream myFile;
         myFile.open("account.txt", ios::out);
         if(!myFile){
@@ -348,6 +361,7 @@ public:
         myFile.close();
     }}
     void retrieve(){
+        decrypt();
         fstream myFile;
         myFile.open("account.txt", ios::in);
         if(!myFile){
@@ -379,7 +393,7 @@ public:
                 c += key;
                 encryptedPin += c;
         }
-            p->pin = encryptedPin;      
+            p->pin = encryptedPin;
             p = p->next;
     }
 }
@@ -414,8 +428,8 @@ int main(){
         switch (t.intro()) {
             case '1': system("cls");
                     cout << "Welcome to the Bank System! (REGISTRATION)" << endl;
-                    cout << "Input Account Number: ";cin >> s.accountNo;
-                    cout << "Input pin: ";
+                    cout << "Input Account Number: ";s.accountNo = t.initializedAccNo();
+                    cout << s.accountNo; cout << "\nInput pin: ";
                     inputPin[0] =  '\0';
                     t.get_numeric_input(inputPin);
                     s.pin = inputPin;
@@ -430,10 +444,10 @@ int main(){
                     inputPin[0] =  '\0';
                     t.get_numeric_input(inputPin);
                     s.pin = inputPin;
-                     t.home(s);
+                     t.home(s, 1);
                      system("pause");
                      break;
-            case '3':exit(0);
+            case '3':t.save();exit(0);
             default:cout << "Invalid Choice"; break;
         }
     }
