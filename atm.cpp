@@ -174,14 +174,14 @@ public:
         if(search(s) == 1){
             transac(s);
         }else if(search(s) == 2){//if incorrect it will go back
-            cout << "Account Pin is incorrect" << endl;
-            if(x < 3)
+            cout << "\nAccount Pin is incorrect" << endl;
+            if(x < 3){
                 cout << "Input pin: ";
                 inputPin[0] =  '\0';
                 get_numeric_input(inputPin);
                 s.pin = inputPin;
                 home(s, x + 1);
-            else
+            }else
                 cout << "enought tries, wait for card...";
              
         }else{
@@ -250,7 +250,7 @@ public:
         if(withdraw%100 == 0){
             if(withdraw > 20000){
                 cout << "Withdrawal amount is too high. Please try again" << endl;
-                return;
+                anotherTransaction(s);
             }
             if(p->balance>=withdraw){ //check if balance is enough
                 p->balance -= withdraw;
