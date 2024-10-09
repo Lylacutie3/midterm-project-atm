@@ -247,11 +247,11 @@ public:
             p = p->next;
         }
 
+        if(withdraw > 20000){
+            cout << "Withdrawal amount is too high. Please try again" << endl;
+            anotherTransaction(s);
+        }
         if(withdraw%100 == 0){
-            if(withdraw > 20000){
-                cout << "Withdrawal amount is too high. Please try again" << endl;
-                anotherTransaction(s);
-            }
             if(p->balance>=withdraw){ //check if balance is enough
                 p->balance -= withdraw;
             }else{
