@@ -170,12 +170,16 @@ public:
     }
 
     void home(Info s, int x){ //check if the password correct
-        
+    char inputPin[MAX_LENGTH + 1] = "";
         if(search(s) == 1){
             transac(s);
         }else if(search(s) == 2){//if incorrect it will go back
             cout << "Account Pin is incorrect" << endl;
             if(x < 3)
+                cout << "Input pin: ";
+                inputPin[0] =  '\0';
+                get_numeric_input(inputPin);
+                s.pin = inputPin;
                 home(s, x + 1);
             else
                 cout << "enought tries, wait for card...";
