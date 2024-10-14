@@ -16,7 +16,7 @@ struct Info{ //Info dont think about registration info
     int balance;
     string pin;
     Info *next;
-    Info(): accountNo(),balance(),pin(),next(NULL){}
+    Info(): accountNo(),balance(5000),pin(),next(NULL){}
 };//used in transaction
 
 
@@ -251,7 +251,7 @@ public:
             cout << "Withdrawal amount is too high. Please try again" << endl;
             anotherTransaction(s);
         }
-        if(withdraw%100 == 0){
+        if(withdraw%100 == 0 && withdraw >= 500){
             if(p->balance>=withdraw){ //check if balance is enough
                 p->balance -= withdraw;
             }else{
@@ -259,7 +259,7 @@ public:
                 anotherTransaction(s);
             }
         }else{
-            cout << "Amount should be a multiple of 100!!!" << endl;
+            cout << "Amount should be above 500 and multiple by 100!!!" << endl;
             anotherTransaction(s);
         }
     }
@@ -316,11 +316,13 @@ public:
         if (p->pin == s.pin){
             while(true){
                 char input2[MAX_LENGTH + 1] = ""; // Verified
+                if(input2.lenght() == 5 ){
+                    continue;
+                }
                 char input3[MAX_LENGTH + 1] = ""; // Verified
                 cout << "Input new password: ";
 
                 get_numeric_input(input2); //data validation with censoredship
-
                 cout<<"YOU TYPED:  "<<input2<<endl;
                 NewPin =  input2;
 
@@ -437,7 +439,7 @@ int main(){
                     inputPin[0] =  '\0';
                     t.get_numeric_input(inputPin);
                     s.pin = inputPin;
-                    s.balance = 5000;   t.add(s);
+                    t.add(s);
                     cout<<"\nREGISTERATION COMPLETE!" << endl;
                     system("pause");
                     break;
