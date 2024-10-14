@@ -9,7 +9,7 @@
 #include <cctype>  // For toupper()
 #define MIN_LENGTH 4
 #define MAX_LENGTH 6
-
+#define key 11212
 using namespace std;
 
 struct Account {
@@ -20,7 +20,7 @@ struct Account {
     int balance;
     string accountNo;
     string number;
-    string pincode;
+    string pin;
     Account():balance(5000){}
 };
 
@@ -142,8 +142,8 @@ int widdepValidation(int maxSize){ // maxSize limits the number of digits
     }
 
    void add(Account s){ // add just to sample if its working
-        Account* newAcc = new Account(s);
-        Account* q, *p;
+        LinkList* newAcc = new LinkList(s);
+        LinkList* q, *p;
        if(head == NULL){
             head = newAcc;
        }else{
@@ -157,7 +157,7 @@ int widdepValidation(int maxSize){ // maxSize limits the number of digits
 
 
     int search(Account s){ //search for the account number
-        Account* p = head;
+        LinkList* p = head;
         while (p != NULL && p->accountNo != s.accountNo) {
             p = p->next;
         }
@@ -222,7 +222,7 @@ int widdepValidation(int maxSize){ // maxSize limits the number of digits
     }
 
     void balanceInquiry(Account s){ //hiniwalay ko yung nag-aask for another transaction
-        Account* p = head;
+        LinkList* p = head;
         int pick;
 
         while (p->accountNo != s.accountNo) {
@@ -242,7 +242,7 @@ int widdepValidation(int maxSize){ // maxSize limits the number of digits
     }
 
     void withdraw(Account s, int withdraw){ // withdraw with Info s to know the blance of wothdrawer
-        Account* p = head;
+        LinkList* p = head;
 
         while (p->accountNo != s.accountNo) {
             p = p->next;
@@ -266,7 +266,7 @@ int widdepValidation(int maxSize){ // maxSize limits the number of digits
     }
 
     void deposit(Account s, int deposit){
-        Account* p = head;
+        LinkList* p = head;
 
         while (p->accountNo != s.accountNo) {
             p = p->next;
@@ -280,8 +280,8 @@ int widdepValidation(int maxSize){ // maxSize limits the number of digits
         }
 
     void transfer(Account transferAc, Account s){
-        Account* t = head;
-        Account* p = head;
+        LinkList* t = head;
+        LinkList* p = head;
         while (t != NULL && t->accountNo != transferAc.accountNo) {
             t = t->next;
         }
@@ -303,7 +303,7 @@ int widdepValidation(int maxSize){ // maxSize limits the number of digits
     }
 
     void changePin(Account s){ //inserted (datavalidation, censoredship)
-        Account* p = head;
+        LinkList* p = head;
         string NewPin, NewPin1;
         char input1[MAX_LENGTH + 1] = ""; // Character array to store input //Enter Current Password
         char ch1, ch2, ch3;
@@ -348,7 +348,7 @@ int widdepValidation(int maxSize){ // maxSize limits the number of digits
 
 
 void save() {
-    ofstream myFile(filePathPC);
+    ofstream myFile("RegisteredAccountPC.txt", ios::out);
     if (!myFile.is_open()) {
         cerr << "Error opening file for writing: " << filePathPC << endl;
         return;
@@ -362,7 +362,7 @@ void save() {
         myFile << p->info.age << endl;
         myFile << p->info.number << endl;
         myFile << p->info.balance << endl;
-        myFile << p->info.pincode << endl;
+        myFile << p->info.pin << endl;
         myFile << p->info.accountNo << endl;  // Save account number
 
         p = p->next;
@@ -371,7 +371,7 @@ void save() {
     myFile.close();
 }
 void retrieve() {
-    ifstream myFile(filePathPC, ios::in);
+    ifstream myFile(("RegisteredAccountPC.txt", ios::in);
     if (!myFile) {
         cout << "Unable to Open the File";
         return;
@@ -383,7 +383,7 @@ void retrieve() {
         myFile >> acc.age;
         myFile >> acc.number;
         myFile >> acc.balance;
-        myFile >> acc.pincode;
+        myFile >> acc.pin;
         myFile >> acc.accountNo; // Retrieve account number
 
         myFile.ignore();
@@ -396,7 +396,7 @@ void retrieve() {
         if (head == NULL) {
             return;
         }
-        Account* p = head;  // Initialize p to point to the head of the list
+        LinkList* p = head;  // Initialize p to point to the head of the list
         while (p != NULL) {
             string encryptedPin;
             int size = p->pin.size();
@@ -414,7 +414,7 @@ void retrieve() {
     if (head==NULL) {
         return;
     }else{
-        Account* p = head;
+        LinkList* p = head;
         while (p != NULL) {
             string decryptedPin;
             int size = p->pin.size();
@@ -475,7 +475,6 @@ public:
             exit(1);
         }
         filePathUSB = usbDirectory + "\\USBAccount.txt";
-        filePathPC = "RegisteredAccountPC.txt";
     }
 };
 
@@ -587,8 +586,6 @@ void Atm::agecheck(Account &pAcc) {
 }
 
 
-
-
 string Atm::getnumber() {
     char number[11] = {0};
     int index = 0;
@@ -689,7 +686,7 @@ void Atm::reg() {
     cout << "Secure your account!" << endl;
     cout << "Please Enter a Pin code (6 digits): \n";
     t.get_numeric_input(input1);
-    pAcc.pincode = input1;
+    pAcc.pin = input1;
     system("cls");
 
     // Account number generation
@@ -711,7 +708,7 @@ void Atm::USBsave(Account acc) {
     }
 
     file << acc.accountNo << endl;
-    file << acc.pincode << endl;
+    file << acc.pin << endl;
 
     file.close();
     cout << "Account data saved to USB successfully." << endl;
@@ -726,11 +723,11 @@ void Atm::USBload(Account* acc) {
 
     // Read the account number and pincode from the USB file
     file >> acc->accountNo;
-    file >> acc->pincode;
+    file >> acc->pin;
 
     // Debug prints to verify what is being read from the USB file
     cout << "USB Loaded Account Number: " << acc->accountNo << endl;
-    cout << "USB Loaded Pincode: " << acc->pincode << endl;
+    cout << "USB Loaded Pincode: " << acc->pin << endl;
 
     file.close();
     cout << "\nAccount data loaded from USB successfully." << endl;
