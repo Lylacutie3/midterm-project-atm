@@ -314,7 +314,7 @@ int widdepValidation(int maxSize){ // maxSize limits the number of digits
         get_numeric_input(input1);
         cout<<"YOU TYPED:  "<<input1<<endl;
         s.pin = input1; //data validation with censoredship
-        if (p->pin == s.pin){
+        if (p->info.pin == s.pin){
             while(true){
                 char input2[MAX_LENGTH + 1] = ""; // Verified
                 char input3[MAX_LENGTH + 1] = ""; // Verified
@@ -331,7 +331,7 @@ int widdepValidation(int maxSize){ // maxSize limits the number of digits
                 NewPin1 = input3;
 
                 if (NewPin == NewPin1){
-                    p->pin = NewPin;
+                    p->info.pin = NewPin;
                     cout << "\nPassword changed successfully\n\n" << endl;
                     break;
                 }else{
@@ -427,7 +427,7 @@ private:
     LinkList* = t.getHead();
     Account acc;
 public:
-    Atm(): t.retrieve();{}
+    Atm(): t.retrieve(){}
     void agecheck(Account&);
     string getnumber();
     string name();
@@ -681,7 +681,7 @@ void Atm::reg() {
     system("pause");
 
     t.add(pAcc);
-    t.save()
+    t.save();
     USBsave(pAcc);
 }
 
