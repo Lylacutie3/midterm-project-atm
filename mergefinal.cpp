@@ -21,7 +21,7 @@ struct Account {
     string accountNo;
     string number;
     string pin;
-    Account():balance(5000){}
+    Account():accountNo("00000"),balance(5000){}
 };
 
 struct LinkList{
@@ -36,8 +36,8 @@ private:
     LinkList *head;
     char c;
 public:
-    Transaction(): head(NULL){} //initialized head as NULL
-    LinkList* getHead() const { //get the head to acess by the other class
+    Transaction():head(NULL){} //initialized head as NULL
+    LinkList* getHead(){ //get the head to acess by the other class
         return head;
     }
 
@@ -153,41 +153,39 @@ int widdepValidation(int maxSize){ // maxSize limits the number of digits
             p = p->next;
             }
             q->next = newAcc;
-    }}
-
-
-    int search(Account s){ //search for the account number
-        LinkList* p = head;
-        while (p != NULL && p->info.accountNo != s.accountNo) {
-            p = p->next;
-        }
-        if (p == NULL) {
-            return 0;
-        }else if(p->info.pin == s.pin){
-            return 1;
-        }else{
-            return 2;
-        }
     }
+}
+
 
     void home(Account s, int x){ //check if the password correct
     char inputPin[MAX_LENGTH + 1] = "";
-        if(search(s) == 1){
+    if(x<3){
+        cout << "\nInput pin: ";
+        inputPin[0] =  '\0';
+        get_numeric_input(inputPin);
+        if(search(s,inputPin)){
             transac(s);
-        }else if(search(s) == 2){//if incorrect it will go back
-            cout << "\nAccount Pin is incorrect" << endl;
-            if(x < 3){
-                cout << "Input pin: ";
-                inputPin[0] =  '\0';
-                get_numeric_input(inputPin);
-                s.pin = inputPin;
-                home(s, x + 1);
-            }else
-                cout << "enought tries, wait for card...";
-
         }else{
-            cout << "Account Number is not found!" << endl;
+            home(s, x + 1);
         }
+    }else{
+        cout << "\nenough tries, wait for your card...";
+        return;
+    }
+
+    }
+
+
+    bool search(Account s, string pin){ //search for the account number
+        LinkList* p = head;
+        while (p->info.accountNo != s.accountNo) {
+            p = p->next;
+        }
+        if(p->info.pin == pin && s.pin == pin) {
+            return true;
+        }else{
+            return false;
+    }
     }
 
     char choice(){ //menu choice
@@ -252,7 +250,7 @@ int widdepValidation(int maxSize){ // maxSize limits the number of digits
             cout << "Withdrawal amount is too high. Please try again" << endl;
             anotherTransaction(s);
         }
-        if(withdraw%100 == 0){
+        if(withdraw%100 == 0 && withdraw >= 500){
             if(p->info.balance>=withdraw){ //check if balance is enough
                 p->info.balance -= withdraw;
             }else{
@@ -362,8 +360,8 @@ void save() {
         myFile << p->info.age << endl;
         myFile << p->info.number << endl;
         myFile << p->info.balance << endl;
+        myFile << p->info.accountNo << endl;
         myFile << encrypt(p->info.pin) << endl;
-        myFile << p->info.accountNo << endl;  // Save account number
 
         p = p->next;
     }
@@ -383,8 +381,8 @@ void retrieve() {
         myFile >> acc.age;
         myFile >> acc.number;
         myFile >> acc.balance;
-        myFile >> acc.pin;
-        myFile >> acc.accountNo; // Retrieve account number
+        myFile >> acc.accountNo;
+        myFile >> acc.pin; // Retrieve account number
 
         myFile.ignore();
         acc.pin = decrypt(acc.pin);
@@ -419,23 +417,22 @@ string decrypt(string pin){ //decreypt all pin after retrieve
 
 class Atm {
 private:
-    Transaction t;
+    Transaction trans;
     string usbDirectory;
     string filePathUSB;
     string filePathPC;
     int accountCount;     // To track the number of registered accounts
-    LinkList* = t.getHead();
     Account acc;
 public:
-    Atm(): t.retrieve(){}
     void agecheck(Account&);
     string getnumber();
     string name();
     void reg();
     void USBsave(Account acc);
-    void USBload(Account *acc);
+    void USBload(Account* acc);
     bool Card();
     string initializedAccNo();
+    bool EjectUSB(const string& driveLetter);
 
     string findUSBDrive() {
         char drive = 'A';
@@ -445,23 +442,97 @@ public:
             driveName[0] = drive;
             UINT driveType = GetDriveType(driveName);
             if (driveType == DRIVE_REMOVABLE) {
-                cout << "Found removable drive: " << driveName << endl;
-                return string(driveName);
-            }
+                return string (driveName);}
         }
-        cerr << "No removable USB drive found." << endl;
         return "";
     }
 
-    void AccInitialize(){
+    bool AccInitialize(){
         usbDirectory = findUSBDrive();
-        if (usbDirectory.empty()) {
-            cerr << "USB drive not found!" << endl;
-            exit(1);
+        if (usbDirectory.empty()){
+            return false;
         }
         filePathUSB = usbDirectory + "\\USBAccount.txt";
+        return true;
     }
+
+void menu() {
+    string F = "F";
+    while (true) {
+        trans.retrieve();
+        LinkList* p = trans.getHead();
+        system("cls");
+
+        Account acc;
+        cout << "WELCOME TO LANDBANK!";
+
+        // Ensure account initialization before proceeding
+        while (!AccInitialize()) {
+        }
+
+        // Load account from USB
+        USBload(&acc);
+        acc.pin = trans.decrypt(acc.pin);
+
+        // Search for account in the linked list
+        while (p != NULL && p->info.accountNo != acc.accountNo) {
+            p = p->next;
+        }
+
+        // If account is not found
+        if (p == NULL) {
+            cout << "\nAccount is not enrolled\n";
+            cout << "Press any key to register.";
+            cin.get();
+            reg();  // Call registration process
+        } else {
+            // Account found, proceed to home menu
+            trans.home(acc, 0);
+            EjectUSB(F);
+        }
+    }
+}
+
 };
+
+bool Atm:: EjectUSB(const string& driveLetter) {
+    string volumePath = "\\\\.\\" + driveLetter + ":";
+    HANDLE hVolume = CreateFileA(volumePath.c_str(),
+                                 GENERIC_READ | GENERIC_WRITE,
+                                 FILE_SHARE_READ | FILE_SHARE_WRITE,
+                                 NULL,
+                                 OPEN_EXISTING,
+                                 0,
+                                 NULL);
+
+    if (hVolume == INVALID_HANDLE_VALUE) {
+        cerr << "Error: Unable to open the drive. Check if the drive letter is correct." << std::endl;
+        return false;
+    }
+
+    DWORD bytesReturned = 0;
+    if (!DeviceIoControl(hVolume, FSCTL_LOCK_VOLUME, NULL, 0, NULL, 0, &bytesReturned, NULL)) {
+        cerr << "Error: Unable to lock the volume." << std::endl;
+        CloseHandle(hVolume);
+        return false;
+    }
+
+    if (!DeviceIoControl(hVolume, FSCTL_DISMOUNT_VOLUME, NULL, 0, NULL, 0, &bytesReturned, NULL)) {
+        cerr << "Error: Unable to dismount the volume." << std::endl;
+        CloseHandle(hVolume);
+        return false;
+    }
+
+    if (!DeviceIoControl(hVolume, IOCTL_STORAGE_EJECT_MEDIA, NULL, 0, NULL, 0, &bytesReturned, NULL)) {
+        cerr << "Error: Unable to eject the media." << std::endl;
+        CloseHandle(hVolume);
+        return false;
+    }
+
+    cout << "USB drive " << driveLetter << ": successfully ejected." << std::endl;
+    CloseHandle(hVolume);
+    return true;
+}
 
 void Atm::agecheck(Account &pAcc) {
     bool valid = false;
@@ -479,7 +550,7 @@ void Atm::agecheck(Account &pAcc) {
         // MONTH validation
         do {
             cout << "MONTH (MM): ";
-            pAcc.MM = t.widdepValidation(2); // Validate a 2-digit month
+            pAcc.MM = trans.widdepValidation(2); // Validate a 2-digit month
             cout << endl;
             if (pAcc.MM > 12 || pAcc.MM <= 0) {
                 cout << "Invalid Month. Please enter a valid month (1-12)." << endl;
@@ -492,7 +563,7 @@ void Atm::agecheck(Account &pAcc) {
         // DAY validation
         do {
             cout << "DAY (DD): ";
-            pAcc.DD = t.widdepValidation(2); // Validate a 2-digit day
+            pAcc.DD = trans.widdepValidation(2); // Validate a 2-digit day
             cout << endl;
         maxDays = 31;
         if (pAcc.MM == 2) {//FEBRUARY
@@ -518,7 +589,7 @@ void Atm::agecheck(Account &pAcc) {
         // YEAR validation
         do {
             cout << "YEAR (YYYY): ";
-            pAcc.YY = t.widdepValidation(4); // Validate a 4-digit year
+            pAcc.YY = trans.widdepValidation(4); // Validate a 4-digit year
             cout << endl;
             int reprint=1;//for reprinting
             // Check if the year is a four-digit number
@@ -620,7 +691,7 @@ int index = 0;
                 break; // Valid length, exit loop
             }
             continue; // Invalid length
-        } else if (ch == '\b' && !isempty(temp)) {// Ensure there's something to delete
+        } else if (ch == '\b' && !trans.isempty(temp)) {// Ensure there's something to delete
             if (index != 0){
                 index--; // Decrement index
                 cout << "\b \b"; // Handle backspace display
@@ -670,7 +741,7 @@ void Atm::reg() {
     // Pin code
     cout << "Secure your account!" << endl;
     cout << "Please Enter a Pin code (6 digits): \n";
-    t.get_numeric_input(input1);
+    trans.get_numeric_input(input1);
     pAcc.pin = input1;
     system("cls");
 
@@ -680,8 +751,9 @@ void Atm::reg() {
     cout << "Account Successfully Created!\n" << endl;
     system("pause");
 
-    t.add(pAcc);
-    t.save();
+    trans.add(pAcc);
+    pAcc.pin = trans.encrypt(pAcc.pin);
+    trans.save();
     USBsave(pAcc);
 }
 
@@ -693,7 +765,7 @@ void Atm::USBsave(Account acc) {
     }
 
     file << acc.accountNo << endl;
-    file << t.encrypt(acc.pin) << endl;
+    file << acc.pin << endl;
 
     file.close();
     cout << "Account data saved to USB successfully." << endl;
@@ -705,24 +777,23 @@ void Atm::USBload(Account* acc) {
     if(!file){
         return;
     }
-
     // Read the account number and pincode from the USB file
     file >> acc->accountNo;
     file >> acc->pin;
-    acc->pin = t.decrypt(acc->pin);
+
 
     // Debug prints to verify what is being read from the USB file
     cout << "USB Loaded Account Number: " << acc->accountNo << endl;
     cout << "USB Loaded Pincode: " << acc->pin << endl;
-
     file.close();
     cout << "\nAccount data loaded from USB successfully." << endl;
 }
 
-string initializedAccNo(){
+string Atm:: initializedAccNo(){
     srand(time(0));//randomized number base on time
     string acc;
-    LinkList* p = head;
+    LinkList* head;
+    LinkList* p = trans.getHead();
 
     for(int i = 0; i < 5; i++){
         char a = rand() % 9 + '0';//make it char
@@ -737,32 +808,10 @@ string initializedAccNo(){
         return acc; //return if its unique
     }
 
-bool Atm::Card() {
-    char input1[MAX_LENGTH + 1] = ""; // Character array to store input
-    USBload(&acc);
-    LinkList *p;
 
-    while(p!=NULL && p->info.accountNo != acc.accountNo){
-        p = p->next;
-    }
-    if(p==NULL){
-        return false;
-    }else{
-        t.home(acc, 1);
-    }
-}
 
 int main() {
-    Atm a;
-    a.AccInitialize(); // Initial ize USB and file paths
-    while(true){
-    system("cls");
-    cout<<"WELCOME TO LANDBANK";
-    if(!a.Card){
-        cout<<"Invalid Card";
-        cout<<"Register first"
-        a.reg();
-    }}
-
+    Atm a; // Initial ize USB and file paths
+    a.menu();
     return 0;
 }
