@@ -94,7 +94,7 @@ public:
         }
         system("cls");  //[] clear console after removing the file
         cout << "Thank you for using our bank!" << endl;
-        system("timeout /T 3");  //[] sleep for sec to stay the prompt for sec and continue in home
+        sleep("3000");  //[] sleep for sec to stay the prompt for sec and continue in home
     }
 
 };
@@ -340,12 +340,12 @@ public:
         if(deposit%100 == 0){//[]check for the amount input
             p->info.balance += deposit;
             cout << "Deposit Successful!" <<endl;
-            system("timeout /T 3");  
+            sleep("3000");  
             balanceInquiry(p);
             anotherTransaction(p);
         }else{ 
             cout << "Invalid Amout Deposit" << endl;
-            system("timeout /T 3");
+            sleep("3000");
             transac(p);
         }
     }
@@ -360,20 +360,20 @@ public:
             if(p->info.balance>=withdraw){ //[]check if balance is enough
                 p->info.balance -= withdraw;
                 cout << "Withdraw Successful!" <<endl;
-                system("timeout /T 3");  
+                sleep("3000");  
                 balanceInquiry(p); //[]prompt the balance after withdraw
                 transac(p); //[] call transact again
             }else{
                 cout << "Insufficient Balance!!!" << endl;
                 cout << "Withdraw unccessful!" <<endl;
-                system("timeout /T 3");  
+                sleep("3000");  
                 balanceInquiry(p); //[]prompt the balance available
-                system("timeout /T 3");
+                sleep("3000");
                 transac(p); //[]call transact again
             }
         }else{
             cout << "Invalid Amout Withdraw" << endl;
-            system("timeout /T 3");
+            sleep("3000");
             transac(p); //[]call transact again
         }
     }
@@ -405,7 +405,7 @@ public:
         } //look for trnasAccount
         if(accountNo == p->info.accountNo){
             cout << "You can not transfer on your Account." << endl;
-            system("timeout /T 3");
+            sleep("3000");
             transac(p);
         }else if (t == NULL){
             cout << "\nThe Account is not Enrolled" << endl;
@@ -418,11 +418,11 @@ public:
                 p->info.balance -= amount;
                 cout << "Transfer Successful" << endl;
                 balanceInquiry(p);
-                system("timeout /T 3");
+                sleep("3000");
                 transac(p);
             }else{
                 cout << "Insufficient Balance" << endl;
-                system("timeout /T 3");
+                sleep("3000");
                 transac(p);
             }
         }
