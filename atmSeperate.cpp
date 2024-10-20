@@ -277,7 +277,7 @@ public:
         }
     }
 
-    bool checkPass(Account s, string pin){ //check the input password if accurate
+    bool checkPass(LinkList *p;, string pin){ //check the input password if accurate
         LinkList* p = head;
         while (p->info.accountNo != s.accountNo) { //[]look for the account number
             p = p->next;
@@ -1107,7 +1107,10 @@ public:
         inputPin[0] =  '\0';
         v.get_numeric_input(inputPin); //[]to display password as **
         if(checkPass(s,inputPin)){ //[]compare input pass
-            transac(s); //[] if the pasword correct it will let to continue in the transactions
+            while(p->info.accountNo != acc.accountNo){
+                p = p->next;
+            }
+            transac(p); //[] if the pasword correct it will let to continue in the transactions
         }else{
             home(s, x + 1); // []else it will let to input again
         }
@@ -1127,12 +1130,12 @@ public:
         return pick;//[] return the user pick
     }
 
-    void transac(Account s){ //function to run user choice
+    void transac(LinkList* p){ //function to run user choice
         system("cls");
         switch(choice()){
-            case '1':system("cls");deposit(s); break;//[] go to deposit function
-            case '2':system("cls"); withdraw(s); break;
-            case '3':system("cls"); balanceInquiry(s); anotherTransaction(s); break;
+            case '1':system("cls");deposit(p); break;//[] go to deposit function
+            case '2':system("cls"); withdraw(p); break;
+            case '3':system("cls"); balanceInquiry(p); anotherTransaction(s); break;
             case '4':system("cls"); transfer(s);break;
             case '5':system("cls"); changePin(s); break;
             case '6': return;
@@ -1140,7 +1143,7 @@ public:
             }
     }
 
-    void deposit(Account s){
+    void deposit(LinkList *p;){
         LinkList* p = head;
         cout << "\nWarning! No coins only paper bill"<<endl; //[] warning for user
         cout << "\nInput how much deposit: ";
@@ -1162,7 +1165,7 @@ public:
         }
     }
 
-    void withdraw(Account s){ // withdraw with Info s to know the blance of wothdrawer
+    void withdraw(LinkList *p;){ // withdraw with Info s to know the blance of wothdrawer
         LinkList* p = head;
         cout << "\nWarning! No coins only paper bill"<<endl; //[] warning for user
         cout << "\nInput how much withdraw: ";
@@ -1193,7 +1196,7 @@ public:
         }
     }
 
-    void balanceInquiry(Account s){ //this function show the balance
+    void balanceInquiry(LinkList *p;){ //this function show the balance
         LinkList* p = head;
         while (p->info.accountNo != s.accountNo) { //[]look for the account number
             p = p->next;
@@ -1202,7 +1205,7 @@ public:
         Sleep(1000);
     }
 
-    void anotherTransaction(Account s){ //ask for another transaction
+    void anotherTransaction(LinkList *p;){ //ask for another transaction
         int pick;
         cout << "\nDo you want another transaction?\n1.) YES\n2.) NO\n";
         cin >> pick; //[] ask user for another transaction
@@ -1212,7 +1215,7 @@ public:
         }
     }
 
-    void transfer(Account s){// this function is for transfer fund
+    void transfer(LinkList *p;){// this function is for transfer fund
         LinkList* t = head;
         LinkList* p = head;
 
@@ -1253,7 +1256,7 @@ public:
         }
     }
 
-     void changePin(Account s){ //inserted (datavalidation, censoredship)
+     void changePin(LinkList *p;){ //inserted (datavalidation, censoredship)
         string NewPin, NewPin1;
         Account acc;
         char input1[MAX_LENGTH + 1] = ""; // Character array to store input //Enter Current Password
